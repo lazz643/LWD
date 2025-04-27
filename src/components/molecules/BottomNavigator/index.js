@@ -1,8 +1,17 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 import React from 'react';
-import { HomeON, HomeOFF, HistoryON, HistoryOFF, ImageON, ImageOFF, SettingON, SettingOFF } from '../../../assets';
+import {
+  HomeON,
+  HomeOFF,
+  HistoryON,
+  HistoryOFF,
+  ImageON,
+  ImageOFF,
+  SettingON,
+  SettingOFF,
+} from '../../../assets';
 
-const Icon = ({ label, focus }) => {
+const Icon = ({label, focus}) => {
   let iconSource;
 
   if (label === 'Home') {
@@ -12,7 +21,7 @@ const Icon = ({ label, focus }) => {
   } else if (label === 'Image') {
     iconSource = focus ? ImageON : ImageOFF;
   } else if (label === 'Settings') {
-    iconSource = focus ? SettingOFF : SettingON
+    iconSource = focus ? SettingOFF : SettingON;
   } else {
     iconSource = HomeOFF; // Default icon
   }
@@ -20,11 +29,11 @@ const Icon = ({ label, focus }) => {
   return <Image source={iconSource} style={styles.icon} />;
 };
 
-const BottomNavigator = ({ state, descriptors, navigation }) => {
+const BottomNavigator = ({state, descriptors, navigation}) => {
   return (
     <View style={styles.container}>
       {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
+        const {options} = descriptors[route.key];
         const label =
           options.tabBarLabel !== undefined
             ? options.tabBarLabel
@@ -46,28 +55,34 @@ const BottomNavigator = ({ state, descriptors, navigation }) => {
           }
         };
 
+        {
+          /* fitur tekan lama pada bottom bar */
+        }
         const onLongPress = () => {
           navigation.emit({
             type: 'tabLongPress',
             target: route.key,
           });
+          // tambah fitur disini
         };
 
         return (
           <TouchableOpacity
             key={index}
             accessibilityRole="button"
-            accessibilityState={isFocused ? { selected: true } : {}}
+            accessibilityState={isFocused ? {selected: true} : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}
             testID={options.tabBarTestID}
             onPress={onPress}
             onLongPress={onLongPress}
-            style={styles.tabButton}
-          >
+            style={styles.tabButton}>
             {/* Wrapper to hold both Icon and Label */}
             <View style={styles.iconLabelContainer}>
               <Icon label={label} focus={isFocused} />
-              <Text style={[styles.label, isFocused ? styles.labelFocused : null]}>{label}</Text>
+              <Text
+                style={[styles.label, isFocused ? styles.labelFocused : null]}>
+                {label}
+              </Text>
             </View>
           </TouchableOpacity>
         );
