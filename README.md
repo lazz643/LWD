@@ -1,79 +1,157 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Tutorial Lengkap Setup React Native di Windows dengan Android Studio dan Emulator
 
-# Getting Started
+---
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## 1. Install Chocolatey (Package Manager Windows)
 
-## Step 1: Start the Metro Server
+Buka **PowerShell sebagai Administrator**, lalu jalankan perintah berikut:
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-To start Metro, run the following command from the _root_ of your React Native project:
+Cek instalasi:
 
-```bash
-# using npm
-npm start
+choco -v
 
-# OR using Yarn
-yarn start
-```
+---
 
-## Step 2: Start your Application
+## 2. Install Node.js, Git, dan React Native CLI
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+Jalankan di terminal (PowerShell/Git Bash):
 
-### For Android
+choco install -y nodejs-lts git
+npm install -g react-native-cli
 
-```bash
-# using npm
+Cek versi:
+
+node -v
+npm -v
+git --version
+react-native -v
+
+---
+
+## 3. Install Android Studio via Chocolatey
+
+choco install -y androidstudio
+
+---
+
+## 4. Konfigurasi Android Studio
+
+1. Buka Android Studio dari Start Menu.
+2. Pilih **Standard** pada wizard setup.
+3. Tunggu proses instalasi SDK dan komponen selesai.
+4. Buka **SDK Manager**:  
+   `More Actions → SDK Manager`
+
+   - Di tab **SDK Platforms**: centang Android API terbaru (misalnya API 34).
+   - Di tab **SDK Tools**: centang semua yang diperlukan:
+     - Android SDK Build-Tools
+     - Android Emulator
+     - Android SDK Platform-Tools
+     - Android SDK Command-line Tools
+     - Intel x86 Emulator Accelerator (HAXM) _(jika CPU Intel)_
+
+5. Klik **Apply** dan tunggu proses selesai.
+
+---
+
+## 5. Buat Emulator Android (AVD)
+
+1. Buka **Virtual Device Manager**:  
+   `More Actions → Virtual Device Manager` atau  
+   `Tools → Device Manager`
+2. Klik **Create Virtual Device**.
+3. Pilih tipe device, contoh **Pixel 5**, klik **Next**.
+4. Pilih API level (download jika belum ada), klik **Finish**.
+5. Jalankan emulator dengan klik tombol ▶️ **Launch**.
+
+---
+
+## 6. Setting Environment Variables di Windows
+
+Buka **Environment Variables**:
+
+- Tambahkan variable baru di **User Variables**:
+
+  ANDROID_HOME = C:\Users\<YourUser>\AppData\Local\Android\Sdk
+
+- Tambahkan ini ke **Path** (User Variables):
+
+  %ANDROID_HOME%\emulator
+  %ANDROID_HOME%\platform-tools
+  %ANDROID_HOME%\tools
+  %ANDROID_HOME%\tools\bin
+
+Ganti `<YourUser>` dengan username Windows kamu.
+
+---
+
+## 7. Verifikasi Instalasi
+
+Buka terminal baru, cek:
+
+adb --version
+emulator -list-avds
+
+Pastikan emulator sudah terdaftar.
+
+---
+
+## 8. (Opsional) Install Git Bash Terminal
+
+Git Bash memberikan pengalaman terminal bash di Windows.
+
+choco install -y git.install
+
+Setelah itu bisa buka **Git Bash** dari Start Menu.
+
+---
+
+## 9. Menjalankan Proyek React Native
+
+1. Jalankan aplikasi:
+
+npx react-native run-android
+
+atau
+
 npm run android
 
-# OR using Yarn
-yarn android
-```
+---
 
-### For iOS
+## 10. Tips Troubleshooting Umum
 
-```bash
-# using npm
-npm run ios
+| Masalah                        | Solusi                                                   |
+| ------------------------------ | -------------------------------------------------------- |
+| `SDK not found`                | Cek kembali environment variable ANDROID_HOME            |
+| Emulator tidak berjalan lancar | Pastikan Virtualization Technology aktif di BIOS         |
+| `adb` command tidak ditemukan  | Pastikan `%ANDROID_HOME%\platform-tools` sudah di Path   |
+| Build gagal                    | Jalankan `cd android && ./gradlew clean` lalu ulangi run |
 
-# OR using Yarn
-yarn ios
-```
+---
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+# Selesai!
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+Sekarang kamu sudah siap mengembangkan aplikasi React Native di Windows dengan Android Studio dan emulator Android.
 
-## Step 3: Modifying your App
+# untuk deploy jadi apk
 
-Now that you have successfully run the app, let's modify it.
+1. Tambahkan code ini ke file package.json bagian scripts:
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+   "prebuild": "npx react-native bundle --android platform --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+   "build": "cd android && gradlew assembleDebug && cd ../",
 
-## Congratulations! :tada:
+   "clear": "cd android && gradlew clean && cd ../
 
-You've successfully run and modified your React Native App. :partying_face:
+2. Pada folder android/app/src/main bikin folder baru bernama assets
+3. Buka cmd pada folder proyek dan jalankan perintah ini:
+   npm run clear
+   npm run build
+4. File apk akan ada di folder android/app/build/outputs/apk/debug
 
-### Now what?
+# Jika masih ada yang belum jelas bisa dilihat tutorial pada youtube ini:
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+1. Untuk setup tools yang diperlukan: https://www.youtube.com/watch?v=BfPBGwsB89Y&t=1175s
+2. Untuk build apk: https://www.youtube.com/watch?v=NKzMj1ElvYY
